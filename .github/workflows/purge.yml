@@ -8,5 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
+          # Custom UA: Cloudflare Browser Integrity Check bans curl's default
+          # signature (error 1010), which silently killed this cron.
           curl -fsS -X POST https://stillon.io/api/admin/purge \
+            -A "stillon-purge-cron/1.0" \
             -H "x-admin-secret: ${{ secrets.ADMIN_SECRET }}"
