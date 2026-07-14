@@ -1,7 +1,9 @@
 # STATUS - stillon
 
 ## 2026-07-14
-- Done: repo scaffolded from implementation plan (docs/superpowers/plans/2026-07-14-stillon-implementation.md in C:\dev).
-- In progress: build tasks 1-10.
-- Blocked: post-deploy Cloudflare custom domain + Web Analytics (Jason). Domain, Supabase, Resend, Infisical, GitHub repo prerequisites are done.
-- Next: execute plan tasks in order.
+- Done: Task 0 scaffold, Task 1 tokens, Task 2 resolve + secrecy tests, Task 3 migration SQL + db layer (code only).
+- In progress: build tasks 4-10.
+- Blocked:
+  - Supabase project named `stillon` is NOT visible via MCP list_projects (TrueVIg / RWAI / Midwatch / etc. only). Migration `supabase/migrations/0001_init.sql` not applied yet. Jason: create dedicated project and paste SQL (do not reuse another project).
+  - Post-deploy: Cloudflare custom domain + Web Analytics.
+- Next: Task 4 handlers (unit-tested without live DB).
