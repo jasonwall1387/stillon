@@ -41,10 +41,10 @@ describe('buildViewState - basics', () => {
     const c = check({ creator_vote: 'bail' });
     expect(buildViewState(c, 'creator', NOW)).toEqual({
       kind: 'creator-open', id: 'c1', title: 'Dinner Friday',
-      eventAt: null, myVote: 'bail', expiresAt: FUTURE,
+      eventAt: null, myVote: 'bail', expiresAt: FUTURE, ogId: 'og1',
     });
     expect(buildViewState(c, 'invitee', NOW)).toEqual({
-      kind: 'invitee-open', id: 'c1', title: 'Dinner Friday', eventAt: null,
+      kind: 'invitee-open', id: 'c1', title: 'Dinner Friday', eventAt: null, ogId: 'og1',
     });
   });
 

@@ -19,8 +19,8 @@ export function buildViewState(check: CheckRow, role: Role | 'spectator', now: D
   if (role === 'creator') {
     return {
       kind: 'creator-open', ...base, eventAt: check.event_at,
-      myVote: check.creator_vote, expiresAt: check.expires_at,
+      myVote: check.creator_vote, expiresAt: check.expires_at, ogId: check.og_id,
     };
   }
-  return { kind: 'invitee-open', ...base, eventAt: check.event_at };
+  return { kind: 'invitee-open', ...base, eventAt: check.event_at, ogId: check.og_id };
 }

@@ -17,7 +17,9 @@ const { view } = res;
 const isOwn = view.kind === 'invitee-open' &&
   (Astro.request.headers.get('cookie') ?? '').includes(`so_own_${view.id}=1`);
 
-const ogImage = view.kind === 'resolved-cancelled' ? `/og/result/${view.ogId}.png` : undefined;
+const ogImage = view.kind === 'resolved-cancelled'
+  ? `/og/result/${view.ogId}.png`
+  : view.kind === 'invitee-open' ? `/og/${view.ogId}.png` : undefined;
 ---
 <Layout title={`${COPY.ogTitle} - ${COPY.brand}`} description={COPY.ogSubtitle} ogImage={ogImage}>
   {isOwn ? (

@@ -11,8 +11,8 @@ export interface CheckRow {
   title_purged: boolean; ip_hash: string;
 }
 export type ViewState =
-  | { kind: 'creator-open'; id: string; title: string; eventAt: string | null; myVote: Vote; expiresAt: string }
-  | { kind: 'invitee-open'; id: string; title: string; eventAt: string | null }
+  | { kind: 'creator-open'; id: string; title: string; eventAt: string | null; myVote: Vote; expiresAt: string; ogId: string }
+  | { kind: 'invitee-open'; id: string; title: string; eventAt: string | null; ogId: string }
   | { kind: 'resolved-cancelled'; id: string; title: string; ogId: string }
   | { kind: 'resolved-stands'; id: string; title: string }
   | { kind: 'expired'; id: string; title: string };
