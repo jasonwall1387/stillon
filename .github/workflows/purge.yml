@@ -1,0 +1,12 @@
+name: purge
+on:
+  schedule:
+    - cron: '17 8 * * *'
+  workflow_dispatch:
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -fsS -X POST https://stillon.io/api/admin/purge \
+            -H "x-admin-secret: ${{ secrets.ADMIN_SECRET }}"
