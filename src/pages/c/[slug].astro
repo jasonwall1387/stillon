@@ -1,0 +1,14 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CreatorPanel from '../../components/CreatorPanel';
+import { loadView } from '../../lib/handlers';
+import { makeDeps } from '../../lib/runtime';
+export const prerender = false;
+
+const slug = Astro.params.slug ?? '';
+const res = await loadView(makeDeps(Astro.locals, Astro.request), slug);
+if (!res || res.role !== 'creator') return new Response('Not found', { status: 404 });
+---
+<Layout title="Your vibe check - Still On?">
+  <CreatorPanel client:load slug={slug} view={res.view} />
+</Layout>

@@ -1,0 +1,33 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import VoteButtons from '../../components/VoteButtons';
+import ResultView from '../../components/ResultView';
+import { loadView } from '../../lib/handlers';
+import { makeDeps } from '../../lib/runtime';
+import { COPY } from '../../lib/copy';
+export const prerender = false;
+
+const slug = Astro.params.slug ?? '';
+const res = await loadView(makeDeps(Astro.locals, Astro.request), slug);
+if (!res || res.role !== 'invitee') return new Response('Not found', { status: 404 });
+const { view } = res;
+
+// Creator opening their own share link: steer them to their status page instead
+// of letting them accidentally vote as the invitee.
+const isOwn = view.kind === 'invitee-open' &&
+  (Astro.request.headers.get('cookie') ?? '').includes(`so_own_${view.id}=1`);
+
+const ogImage = view.kind === 'resolved-cancelled' ? `/og/result/${view.ogId}.png` : undefined;
+---
+<Layout title={`${COPY.ogTitle} - ${COPY.brand}`} description={COPY.ogSubtitle} ogImage={ogImage}>
+  {isOwn ? (
+    <div class="card center">
+      <h2>{COPY.ownLinkHeading}</h2>
+      <p class="note">{COPY.ownLinkBody}</p>
+    </div>
+  ) : view.kind === 'invitee-open' ? (
+    <VoteButtons client:load slug={slug} view={view} />
+  ) : (
+    <ResultView view={view} client:load />
+  )}
+</Layout>

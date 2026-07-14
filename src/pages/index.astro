@@ -1,12 +1,11 @@
 ---
+import Layout from '../layouts/Layout.astro';
+import CreateForm from '../components/CreateForm';
+import { COPY } from '../lib/copy';
+export const prerender = false;
 ---
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>stillon</title>
-  </head>
-  <body>
-    <h1>stillon</h1>
-  </body>
-</html>
+<Layout>
+  <h1>{COPY.heroTitle}</h1>
+  <p class="sub">{COPY.heroBody}</p>
+  <CreateForm client:load />
+</Layout>

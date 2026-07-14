@@ -1,0 +1,25 @@
+---
+import '../styles/global.css';
+import { COPY } from '../lib/copy';
+interface Props { title?: string; ogImage?: string; description?: string }
+const { title = `${COPY.brand} ${COPY.tagline}`, ogImage = '/og-default.png', description = COPY.heroBody } = Astro.props;
+const ogUrl = new URL(ogImage, Astro.site ?? Astro.url.origin).href;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤐</text></svg>" />
+  </head>
+  <body>
+    <main><slot /></main>
+    <footer><a href="https://revenuewithai.com" rel="noopener">{COPY.footer}</a></footer>
+  </body>
+</html>
