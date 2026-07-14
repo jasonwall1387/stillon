@@ -30,8 +30,8 @@ export default function VoteButtons({ slug, view }: { slug: string; view: ViewSt
       <h2>{COPY.inviteeQuestion(state.title)}</h2>
       {state.eventAt && <p className="note">{new Date(state.eventAt).toLocaleString()}</p>}
       <div className="vote-row">
-        <button className="vote-btn" disabled={busy} onClick={() => vote('on')}>{COPY.voteOn}</button>
-        <button className="vote-btn" disabled={busy} onClick={() => vote('bail')}>{COPY.voteBail}</button>
+        <button type="button" data-testid="vote-on" className="vote-btn" disabled={busy} onClick={() => vote('on')}>{COPY.voteOn}</button>
+        <button type="button" data-testid="vote-bail" className="vote-btn" disabled={busy} onClick={() => vote('bail')}>{COPY.voteBail}</button>
       </div>
       <p className="note">{COPY.votePrivacyNote}</p>
     </div>

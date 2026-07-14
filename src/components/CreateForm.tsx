@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { COPY } from '../lib/copy';
 import type { Vote } from '../lib/types';
 
 type Created = { id: string; creatorUrl: string; shareUrl: string };
 
 export default function CreateForm() {
+  const [ready, setReady] = useState(false);
   const [title, setTitle] = useState('');
   const [eventAt, setEventAt] = useState('');
   const [vote, setVote] = useState<Vote | null>(null);
@@ -13,6 +14,8 @@ export default function CreateForm() {
   const [busy, setBusy] = useState(false);
   const [created, setCreated] = useState<Created | null>(null);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => { setReady(true); }, []);
 
   async function submit() {
     if (!title.trim() || !vote) { setError('Give the plan a name and pick your answer.'); return; }
@@ -45,11 +48,11 @@ export default function CreateForm() {
 
   if (created) {
     return (
-      <div className="card">
+      <div className="card" data-testid="create-form" data-ready="1">
         <h2>{COPY.shareHeading}</h2>
         <p className="note">{COPY.shareBody}</p>
         <div className="share-url">{created.shareUrl}</div>
-        <button className="btn-primary" onClick={share}>
+        <button type="button" data-testid="share-button" className="btn-primary" onClick={share}>
           {copied ? COPY.copied : COPY.shareButton}
         </button>
         <p className="note">
@@ -60,7 +63,7 @@ export default function CreateForm() {
   }
 
   return (
-    <div className="card">
+    <div className="card" data-testid="create-form" data-ready={ready ? '1' : '0'}>
       <label>{COPY.titleLabel}</label>
       <input value={title} maxLength={80} placeholder={COPY.titlePlaceholder}
         onChange={(e) => setTitle(e.target.value)} />
@@ -68,14 +71,14 @@ export default function CreateForm() {
       <input type="datetime-local" value={eventAt} onChange={(e) => setEventAt(e.target.value)} />
       <label>{COPY.voteQuestion}</label>
       <div className="vote-row">
-        <button className={`vote-btn ${vote === 'on' ? 'selected' : ''}`} onClick={() => setVote('on')}>{COPY.voteOn}</button>
-        <button className={`vote-btn ${vote === 'bail' ? 'selected' : ''}`} onClick={() => setVote('bail')}>{COPY.voteBail}</button>
+        <button type="button" data-testid="vote-on" className={`vote-btn ${vote === 'on' ? 'selected' : ''}`} onClick={() => setVote('on')}>{COPY.voteOn}</button>
+        <button type="button" data-testid="vote-bail" className={`vote-btn ${vote === 'bail' ? 'selected' : ''}`} onClick={() => setVote('bail')}>{COPY.voteBail}</button>
       </div>
       <p className="note">{COPY.votePrivacyNote}</p>
       <label>{COPY.emailLabel}</label>
       <input type="email" value={email} placeholder="you@example.com" onChange={(e) => setEmail(e.target.value)} />
-      {error && <p className="note" style={{ color: '#e53170' }}>{error}</p>}
-      <button className="btn-primary" disabled={busy} onClick={submit}>{COPY.createCta}</button>
+      {error && <p className="note" style={{ color: '#e53170' }} data-testid="create-error">{error}</p>}
+      <button type="button" data-testid="create-submit" className="btn-primary" disabled={busy} onClick={submit}>{COPY.createCta}</button>
     </div>
   );
 }

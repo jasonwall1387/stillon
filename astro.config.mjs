@@ -7,6 +7,7 @@ export default defineConfig({
   site: 'https://stillon.io',
   adapter: cloudflare({ platformProxy: { enabled: true } }),
   integrations: [react()],
+  devToolbar: { enabled: false },
   vite: {
     ssr: { noExternal: ['workers-og'] },
   },

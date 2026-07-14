@@ -4,5 +4,6 @@
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
   "assets": { "binding": "ASSETS", "directory": "./dist" },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  "vars": { "PUBLIC_SITE_URL": "https://stillon.io" }
 }
