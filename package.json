@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
-    "deploy": "astro build && wrangler deploy"
+    "deploy": "astro build && node scripts/predeploy.mjs && wrangler deploy"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.2.0",
