@@ -3,7 +3,9 @@ import type { Role, ViewState, Vote } from './types';
 import { buildViewState, isExpired } from './resolve';
 import { hashSlug, newId, newOgId, newSlug } from './tokens';
 
-export const RATE_LIMIT_PER_DAY = 20;
+// Per-IP per rolling 24h. 100 (not 20) so shared NAT - corporate/university/mobile-carrier
+// networks where many real users share one public IP - does not false-reject during a launch spike.
+export const RATE_LIMIT_PER_DAY = 100;
 const SEVENTY_TWO_HOURS_MS = 72 * 3600_000;
 const DAY_MS = 24 * 3600_000;
 
