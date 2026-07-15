@@ -11,7 +11,7 @@ export interface Db {
   insertCheck(row: NewCheck): Promise<void>;
   findBySlugHash(hash: string): Promise<{ check: CheckRow; role: Role } | null>;
   findByOgId(ogId: string): Promise<Pick<CheckRow, 'title' | 'status'> | null>;
-  claimInviteeVote(id: string, vote: Vote, status: 'cancelled' | 'stands', resolvedAt: string): Promise<CheckRow | null>;
+  claimInviteeVote(id: string, vote: Vote, resolvedAt: string): Promise<CheckRow | null>;
   setCreatorVote(id: string, vote: Vote): Promise<CheckRow | null>;
   markExpired(id: string): Promise<void>;
   countRecentByIp(ipHash: string, sinceIso: string): Promise<number>;
@@ -49,12 +49,12 @@ export function makeDb(env: { SUPABASE_URL: string; SUPABASE_SECRET_KEY: string 
       return (data as Pick<CheckRow, 'title' | 'status'> | null) ?? null;
     },
 
-    async claimInviteeVote(id, vote, status, resolvedAt) {
+    async claimInviteeVote(id, vote, resolvedAt) {
+      // Resolve atomically in Postgres: status is computed there under the row lock from the
+      // current creator_vote, so a concurrent creator vote-flip cannot leave a stale status.
       const { data, error } = await sb
-        .from('checks')
-        .update({ invitee_vote: vote, invitee_voted_at: resolvedAt, status, resolved_at: resolvedAt })
-        .eq('id', id).eq('status', 'open').is('invitee_vote', null)
-        .select().maybeSingle();
+        .rpc('resolve_invitee_vote', { p_id: id, p_vote: vote, p_now: resolvedAt })
+        .maybeSingle();
       if (error) throw new Error(`claimInviteeVote: ${error.message}`);
       return (data as CheckRow | null) ?? null;
     },

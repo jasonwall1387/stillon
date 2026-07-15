@@ -29,9 +29,11 @@ function fakeDb() {
       for (const c of rows.values()) if (c.og_id === ogId) return { title: c.title, status: c.status };
       return null;
     },
-    async claimInviteeVote(id, vote, status, resolvedAt) {
+    async claimInviteeVote(id, vote, resolvedAt) {
       const c = rows.get(id);
       if (!c || c.status !== 'open' || c.invitee_vote !== null) return null;
+      // Mirror the DB RPC: derive status from the row's CURRENT creator_vote under the "lock".
+      const status: 'cancelled' | 'stands' = c.creator_vote === 'bail' && vote === 'bail' ? 'cancelled' : 'stands';
       Object.assign(c, { invitee_vote: vote, invitee_voted_at: resolvedAt, status, resolved_at: resolvedAt });
       return c;
     },
@@ -157,6 +159,22 @@ describe('castVote', () => {
   it('unknown slug 404s', async () => {
     const out = await castVote(deps, { slug: 'nope'.repeat(6), vote: 'on' });
     expect(out).toMatchObject({ ok: false, status: 404 });
+  });
+
+  it('SECRECY: a creator flip landing in the resolve window cannot make a keeper see cancelled (TOCTOU regression)', async () => {
+    const res = await createOne(deps, 'bail');                 // creator votes bail
+    const row = [...f.rows.values()][0];
+    // Simulate the creator's flip to 'on' committing inside the resolve window, between the
+    // handler's read and the atomic claim. The fixed resolution reads the current creator_vote.
+    const realClaim = f.db.claimInviteeVote.bind(f.db);
+    f.db.claimInviteeVote = async (id, vote, resolvedAt) => {
+      row.creator_vote = 'on';
+      return realClaim(id, vote, resolvedAt);
+    };
+    const out = await castVote(deps, { slug: slugOf(res.shareUrl), vote: 'bail' });
+    expect(out.view?.kind).toBe('resolved-stands');            // keeper must NOT see cancelled
+    expect(row.status).toBe('stands');
+    expect(row.creator_vote).toBe('on');
   });
 });
 

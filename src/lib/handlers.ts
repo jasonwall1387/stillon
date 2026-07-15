@@ -1,6 +1,6 @@
 import type { Db } from './db';
 import type { Role, ViewState, Vote } from './types';
-import { buildViewState, isExpired, resolveStatus } from './resolve';
+import { buildViewState, isExpired } from './resolve';
 import { hashSlug, newId, newOgId, newSlug } from './tokens';
 
 export const RATE_LIMIT_PER_DAY = 20;
@@ -23,7 +23,7 @@ export type CreateResult =
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function createCheck(deps: Deps, input: CreateInput): Promise<CreateResult> {
-  const title = (input.title ?? '').trim();
+  const title = (input.title ?? '').replace(/\p{Cc}/gu, ' ').trim();
   if (title.length < 1 || title.length > 80) return { ok: false, status: 400, error: 'Title must be 1-80 characters.' };
   if (input.creatorVote !== 'on' && input.creatorVote !== 'bail') return { ok: false, status: 400, error: 'Invalid vote.' };
 
@@ -101,14 +101,15 @@ export async function castVote(
     return { ok: true, status: 200, view: buildViewState(current, 'creator', now) };
   }
 
-  // Invitee vote: resolves the check atomically. First vote wins.
-  const status = resolveStatus(check.creator_vote, input.vote);
-  const claimed = await deps.db.claimInviteeVote(check.id, input.vote, status, now.toISOString());
+  // Invitee vote resolves the check atomically in Postgres; status is computed there under the
+  // row lock from the current creator_vote (closes the creator-flip TOCTOU). First vote wins.
+  const claimed = await deps.db.claimInviteeVote(check.id, input.vote, now.toISOString());
   if (!claimed) {
     const fresh = (await deps.db.findBySlugHash(await hashSlug(input.slug, deps.pepper)))!.check;
     return { ok: true, status: 200, view: buildViewState(fresh, 'invitee', now) };
   }
 
+  const status = claimed.status as 'cancelled' | 'stands';
   await deps.db.insertEvent(status === 'cancelled' ? 'resolved_cancelled' : 'resolved_stands', check.id);
   if (claimed.notify_email) {
     try { await deps.sendResolutionEmail(claimed.notify_email, status, claimed.title); } catch { /* best effort */ }

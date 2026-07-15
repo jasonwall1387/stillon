@@ -20,6 +20,6 @@ const ogUrl = new URL(ogImage, Astro.site ?? Astro.url.origin).href;
   </head>
   <body>
     <main><slot /></main>
-    <footer><a href="https://revenuewithai.com" rel="noopener">{COPY.footer}</a></footer>
+    <footer><a href="https://revenuewithai.com" rel="noopener noreferrer">{COPY.footer}</a></footer>
   </body>
 </html>
