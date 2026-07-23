@@ -1,5 +1,13 @@
 # STATUS - stillon
 
+## 2026-07-15 - launch-week guardrails shipped (gate: GO)
+
+- **Rate limit raised for launch** (commit `7d8b40d`): per-IP create limit 20 -> 100/day,
+  to tolerate shared-NAT traffic (offices, campuses, carrier-grade NAT) without blocking
+  real invitees during the launch push.
+- STATUS.md entry for the TOCTOU fix committed same day (`566c6f2`) - see below, this
+  just formalized the write-up.
+
 ## 2026-07-15 - secrecy TOCTOU fix shipped (gate: GO)
 
 Pre-launch adversarial review (multi-agent) found and reproduced LIVE a break of the core
@@ -24,7 +32,8 @@ affected - only the review's own test rows.
   POST /api/events; add a gitleaks pre-commit guard for .dev.vars.
 
 **Gate: GO.** Launch assets being drafted (r/InternetIsBeautiful submission + X quote-post);
-not yet posted. Metric: invitees who voted.
+not yet posted as of the last commit (2026-07-15). No commits since - check whether the
+launch actually posted before treating this as still "this week."
 
 ## 2026-07-14 (evening - LIVE)
 - Done:
