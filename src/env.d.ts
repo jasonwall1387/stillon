@@ -6,6 +6,7 @@ type Env = {
   RESEND_API_KEY: string;
   TOKEN_PEPPER: string;
   ADMIN_SECRET: string;
+  RETENTION_ENABLED?: string;
   PUBLIC_SITE_URL?: string;
   ASSETS: { fetch: typeof fetch };
 };

@@ -9,7 +9,10 @@ export default defineConfig({
   // checking protects nothing and blocks legitimate server-to-server POSTs
   // (the purge cron) with "Cross-site POST form submissions are forbidden".
   security: { checkOrigin: false },
-  adapter: cloudflare({ platformProxy: { enabled: true } }),
+  adapter: cloudflare({
+    platformProxy: { enabled: true },
+    workerEntryPoint: { path: 'src/worker.ts', namedExports: [] },
+  }),
   integrations: [react()],
   devToolbar: { enabled: false },
   vite: {

@@ -5,5 +5,6 @@
   "compatibility_flags": ["nodejs_compat"],
   "assets": { "binding": "ASSETS", "directory": "./dist" },
   "observability": { "enabled": true },
-  "vars": { "PUBLIC_SITE_URL": "https://stillon.io" }
+  // Intentionally no cron triggers while the product/database is dormant.
+  "vars": { "PUBLIC_SITE_URL": "https://stillon.io", "RETENTION_ENABLED": "false" }
 }
