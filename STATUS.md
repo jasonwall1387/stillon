@@ -55,3 +55,8 @@ launch actually posted before treating this as still "this week."
 - Next (launch): 20s demo video of mutual-bail confetti; X post quoting the @mattiekahn
   tweet ("no app, just a link"); r/InternetIsBeautiful; seed on real plans. Metric:
   invitees who voted (events funnel: `select kind, count(*) from events group by kind`).
+
+## 2026-09-21 workflow audit remediation
+- Prepared source-only retention fix: expired untouched open rows scrub on age, dry-run count, missing admin secret fails closed, dependency error returns redacted503.
+- Verified29 tests including secrecy regressions, Astro check0 errors, build passed.
+- Runtime intentionally remains dormant. No database unpause, purge execution, deploy, or scheduler activation. Worker scheduler/last-success ledger remains a launch prerequisite; choose one scheduler when product resumes.

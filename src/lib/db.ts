@@ -16,7 +16,7 @@ export interface Db {
   markExpired(id: string): Promise<void>;
   countRecentByIp(ipHash: string, sinceIso: string): Promise<number>;
   insertEvent(kind: string, checkId?: string): Promise<void>;
-  purgeOld(cutoffIso: string): Promise<number>;
+  purgeOld(cutoffIso: string, dryRun?: boolean): Promise<number>;
 }
 
 export function makeDb(env: { SUPABASE_URL: string; SUPABASE_SECRET_KEY: string }): Db {
@@ -89,15 +89,16 @@ export function makeDb(env: { SUPABASE_URL: string; SUPABASE_SECRET_KEY: string 
       await sb.from('events').insert({ kind, check_id: checkId ?? null }).then(() => {}, () => {});
     },
 
-    async purgeOld(cutoffIso) {
-      const { data, error } = await sb
-        .from('checks')
-        .update({ title: '(purged)', notify_email: null, title_purged: true })
-        .neq('status', 'open').eq('title_purged', false)
-        .lt('expires_at', cutoffIso)
-        .select('id');
-      if (error) throw new Error(`purgeOld: ${error.message}`);
-      return data?.length ?? 0;
+    async purgeOld(cutoffIso, dryRun = false) {
+      // Expiry is lazy. A never-reopened check can still be 'open' long after
+      // expiry; its private title/email have the same retention deadline.
+      const table = sb.from('checks');
+      const query = dryRun
+        ? table.select('id', { count: 'exact', head: true })
+        : table.update({ title: '(purged)', notify_email: null, title_purged: true }, { count: 'exact' });
+      const { count, error } = await query.eq('title_purged', false).lt('expires_at', cutoffIso);
+      if (error || count === null) throw new Error('Retention database operation failed');
+      return count;
     },
   };
 }
