@@ -26,6 +26,8 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
+    "@cloudflare/workers-types": "5.20260921.1",
+    "@electric-sql/pglite": "0.5.8",
     "@playwright/test": "^1.50.0",
     "@types/canvas-confetti": "^1.9.0",
     "@types/react": "^19.0.0",

@@ -1,5 +1,18 @@
 # STATUS - stillon
 
+## 2026-09-21 - scheduled retention launch preparation
+
+- Done in source: reusable runner, service-only retention_runs migration, durable
+  running/ok/error outcomes and last-success queries, custom Astro scheduled entry.
+- Both scheduled and authenticated manual paths default disabled before DB access;
+  no Worker cron trigger is configured. Dry-run success cannot mask real purge failure.
+- Verified 44 synthetic tests including secrecy regressions and real in-memory
+  PostgreSQL grants/RLS/outcome constraints. Astro check and build validated.
+- Dormant disposition: no live DB calls, unpause, migration application, purge, deploy,
+  GitHub workflow activation, or Worker scheduler activation. See docs/RETENTION-LAUNCH.md.
+- Next on launch: review/apply migration, verify dry-run, choose one scheduler, and
+  establish an independent stale/error/last-success monitor before declaring retention live.
+
 ## 2026-07-15 - launch-week guardrails shipped (gate: GO)
 
 - **Rate limit raised for launch** (commit `7d8b40d`): per-IP create limit 20 -> 100/day,

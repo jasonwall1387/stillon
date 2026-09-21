@@ -3,7 +3,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const state = vi.hoisted(() => ({ rows: [] as any[], failed: false, creates: 0 }));
 vi.mock('@supabase/supabase-js', () => ({ createClient: () => {
   state.creates++;
-  return { from: () => {
+  return { from: (table:string) => {
+    if(table==='retention_runs') {
+      let id:string;
+      const ledger:any={insert:(row:any)=>{id=row.id;return ledger;},update:()=>ledger,
+        eq:(key:string,value:string)=>{if(key==='id')id=value;return ledger;},select:()=>ledger,
+        single:async()=>({data:{id},error:null})};
+      return ledger;
+    }
     let dry=false, cutoff='', patch:any=null;
     const q:any={
       update: (value:any)=>{patch=value;return q;},
@@ -21,7 +28,7 @@ vi.mock('@supabase/supabase-js', () => ({ createClient: () => {
 }}));
 import { makeDb } from '../src/lib/db';
 import { POST } from '../src/pages/api/admin/purge';
-const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_SECRET_KEY:'test-key',ADMIN_SECRET:'synthetic-secret'};
+const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_SECRET_KEY:'test-key',ADMIN_SECRET:'synthetic-secret',RETENTION_ENABLED:'true'};
 const cutoff='2026-08-01T00:00:00.000Z';
 beforeEach(()=>{state.rows=[];state.failed=false;state.creates=0;});
 describe('retention',()=>{
@@ -47,5 +54,13 @@ describe('retention',()=>{
     state.failed=true;
     const result=await POST({request:new Request('https://example.com/api/admin/purge',{method:'POST',headers:{'x-admin-secret':env.ADMIN_SECRET}}),locals:{runtime:{env}}} as any);
     expect(result.status).toBe(503);expect(await result.text()).not.toContain('private backend');
+  });
+  it('authenticated dormant calls return disabled without a database connection',async()=>{
+    const result=await POST({request:new Request('https://example.com/api/admin/purge',{method:'POST',headers:{'x-admin-secret':env.ADMIN_SECRET}}),locals:{runtime:{env:{...env,RETENTION_ENABLED:undefined}}}} as any);
+    expect(result.status).toBe(503);expect(await result.json()).toEqual({error:'Retention disabled'});expect(state.creates).toBe(0);
+  });
+  it('a successful empty purge remains an actual zero response',async()=>{
+    const result=await POST({request:new Request('https://example.com/api/admin/purge',{method:'POST',headers:{'x-admin-secret':env.ADMIN_SECRET}}),locals:{runtime:{env}}} as any);
+    expect(result.status).toBe(200);expect(await result.json()).toEqual({purged:0});
   });
 });

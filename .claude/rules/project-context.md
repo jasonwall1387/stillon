@@ -6,7 +6,11 @@
   no SMS (10DLC registration lead time), web push is v1.1.
 - Data: single `checks` table + `events` funnel table. Capability slugs are stored
   only as sha256(slug + TOKEN_PEPPER) hashes.
-- Expiry is LAZY (marked on read) + a daily purge endpoint hit by GitHub Actions cron.
+- Expiry is LAZY (marked on read). The legacy daily purge GitHub workflow remains
+  dormant. Prepared retention source uses a shared runner and service-only run ledger,
+  with an Astro Worker scheduled entry, no cron triggers, and `RETENTION_ENABLED=false`.
+  Do not resume the database or choose/enable a scheduler until product launch.
+  See `docs/RETENTION-LAUNCH.md`.
 - Launch metric: invitees who voted (not signups).
 
 ## Deployment gotchas (2026-07-14, both cost real debugging)
